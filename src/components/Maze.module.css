@@ -2,43 +2,175 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 2px solid lightgray;
-  padding: 10px;
-  background-color: #fff;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  border: 3px solid #4ecdc4;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.1),
+    0 5px 15px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
   height: fit-content;
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mazeWrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(78, 205, 196, 0.1), rgba(255, 107, 107, 0.05));
+  pointer-events: none;
+  z-index: 1;
 }
 
 .mazeGrid {
   display: grid;
   gap: 1px;
+  position: relative;
+  z-index: 2;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .cell {
   width: 20px;
   height: 20px;
+  transition: all 0.3s ease;
 }
 
 .wall {
-  background-color: #222;
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.wall::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .path {
-  background-color: #eee;
+  background-color: #f8f9fa;
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(78, 205, 196, 0.1) 1px, transparent 1px);
+  background-size: 4px 4px;
 }
 
 .player {
-  background-color: dodgerblue;
+  background: radial-gradient(circle, #1e90ff, #0066cc);
   border-radius: 50%;
+  box-shadow: 
+    0 0 15px rgba(30, 144, 255, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation: playerPulse 2s ease-in-out infinite;
+  position: relative;
+  z-index: 10;
+}
+
+.player::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 30%;
+  width: 40%;
+  height: 40%;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes playerPulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(30, 144, 255, 0.6), 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  50% { 
+    transform: scale(1.1);
+    box-shadow: 0 0 25px rgba(30, 144, 255, 0.8), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .exit {
-  background-color: green;
+  background: radial-gradient(circle, #27ae60, #1e8449);
   border-radius: 50%;
+  box-shadow: 
+    0 0 20px rgba(39, 174, 96, 0.7),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation: exitGlow 3s ease-in-out infinite;
+  position: relative;
+  z-index: 8;
+}
+
+.exit::before {
+  content: '🚪';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes exitGlow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(39, 174, 96, 0.7), 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(39, 174, 96, 0.9), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .gem {
-  background-color: gold;
+  background: radial-gradient(circle, #f1c40f, #d68910);
   border-radius: 50%;
-  box-shadow: 0 0 4px 2px gold;
+  box-shadow: 
+    0 0 20px rgba(241, 196, 15, 0.8),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  animation: gemSparkle 2.5s ease-in-out infinite;
+  position: relative;
+  z-index: 9;
+}
+
+.gem::before {
+  content: '💎';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  animation: gemRotate 4s linear infinite;
+}
+
+@keyframes gemSparkle {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(241, 196, 15, 0.8), 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  25% { 
+    transform: scale(1.15);
+    box-shadow: 0 0 30px rgba(241, 196, 15, 1), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  75% {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(241, 196, 15, 0.9), 0 2px 5px rgba(0, 0, 0, 0.25);
+  }
+}
+
+@keyframes gemRotate {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
