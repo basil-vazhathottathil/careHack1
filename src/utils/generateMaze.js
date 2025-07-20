@@ -1,55 +1,60 @@
-function generateMaze(rows, cols) {
-  const maze = Array.from({ length: rows }, () =>
-    Array(cols).fill(1)
-  );
+// utils/generateMaze.js
 
+export function generateMaze(rows = 21, cols = 21) {
+  const maze = Array.from({ length: rows }, () => Array(cols).fill('wall'));
+
+  // Directions: up, right, down, left
   const directions = [
-    [0, -2], [0, 2],
-    [-2, 0], [2, 0]
+    [-2, 0], [0, 2], [2, 0], [0, -2]
   ];
 
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
+  function isValid(r, c) {
+    return r > 0 && r < rows - 1 && c > 0 && c < cols - 1;
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
+    return arr;
   }
 
-  function isValid(nx, ny) {
-    return ny >= 1 && ny < rows - 1 && nx >= 1 && nx < cols - 1;
-  }
-
-  function carve(x, y) {
-    maze[y][x] = 0;
-
-    shuffle(directions);
-    for (const [dx, dy] of directions) {
-      const nx = x + dx;
-      const ny = y + dy;
-
-      if (isValid(nx, ny) && maze[ny][nx] === 1) {
-        maze[y + dy / 2][x + dx / 2] = 0;
-        carve(nx, ny);
+  function carve(r, c) {
+    maze[r][c] = 'path';
+    for (const [dr, dc] of shuffle(directions)) {
+      const nr = r + dr;
+      const nc = c + dc;
+      const wallR = r + dr / 2;
+      const wallC = c + dc / 2;
+      if (isValid(nr, nc) && maze[nr][nc] === 'wall') {
+        maze[wallR][wallC] = 'path';
+        carve(nr, nc);
       }
     }
   }
 
   // Start from a random odd cell
-  const startX = Math.floor(Math.random() * (cols / 2)) * 2 + 1;
-  const startY = Math.floor(Math.random() * (rows / 2)) * 2 + 1;
-  carve(startX, startY);
+  const startRow = 2 * Math.floor(Math.random() * ((rows - 1) / 2)) + 1;
+  const startCol = 2 * Math.floor(Math.random() * ((cols - 1) / 2)) + 1;
+  carve(startRow, startCol);
 
-  // Open a few outer borders to ensure no complete enclosure
-  for (let i = 0; i < cols; i++) {
-    if (maze[1][i] === 0) maze[0][i] = 0;
-    if (maze[rows - 2][i] === 0) maze[rows - 1][i] = 0;
-  }
-  for (let i = 0; i < rows; i++) {
-    if (maze[i][1] === 0) maze[i][0] = 0;
-    if (maze[i][cols - 2] === 0) maze[i][cols - 1] = 0;
+  // Get list of all path cells
+  const pathCells = [];
+  for (let r = 1; r < rows; r += 2) {
+    for (let c = 1; c < cols; c += 2) {
+      if (maze[r][c] === 'path') {
+        pathCells.push([r, c]);
+      }
+    }
   }
 
-  return maze;
+  // Random player and exit positions from path cells
+  const playerPos = pathCells[Math.floor(Math.random() * pathCells.length)];
+  let exitPos;
+  do {
+    exitPos = pathCells[Math.floor(Math.random() * pathCells.length)];
+  } while (exitPos[0] === playerPos[0] && exitPos[1] === playerPos[1]);
+
+  return { maze, playerStart: playerPos, exit: exitPos };
 }
-
-export default generateMaze;

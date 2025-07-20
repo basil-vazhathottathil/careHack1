@@ -1,14 +1,16 @@
 .maze-container {
   display: grid;
-  grid-template-columns: repeat(15, 20px);
+  grid-template-columns: repeat(15, 30px); /* 30px instead of 20px */
   justify-content: center;
-  margin: 20px auto;
+  margin: 40px auto;
+  padding: 10px;
 }
 
 .cell {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   box-sizing: border-box;
+  border: 1px solid #ccc; /* Light border */
 }
 
 .wall {
