@@ -1,43 +1,44 @@
 .mazeWrapper {
   display: flex;
   justify-content: center;
-  margin-top: 2rem;
+  align-items: center;
+  border: 2px solid lightgray;
+  padding: 10px;
+  background-color: #fff;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  height: fit-content;
 }
 
 .mazeGrid {
   display: grid;
-  border: 3px solid #aaa; /* Light border around maze */
-  background-color: #f0f0f0;
-  padding: 10px;
+  gap: 1px;
 }
 
 .cell {
   width: 20px;
   height: 20px;
-  transition: background-color 0.1s;
-  border: 1px solid transparent;
 }
 
 .wall {
-  background-color: black;
+  background-color: #222;
 }
 
 .path {
-  background-color: white;
+  background-color: #eee;
 }
 
 .player {
-  background-color: #00e0ff;
-  border: 2px solid #007bff;
+  background-color: dodgerblue;
+  border-radius: 50%;
 }
 
 .exit {
-  background-color: gold;
+  background-color: green;
+  border-radius: 50%;
 }
-.winMessage {
-  text-align: center;
-  font-size: 1.5rem;
-  color: green;
-  font-weight: bold;
-  margin-bottom: 1rem;
+
+.gem {
+  background-color: gold;
+  border-radius: 50%;
+  box-shadow: 0 0 4px 2px gold;
 }
