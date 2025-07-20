@@ -1,6 +1,6 @@
 // utils/generateMaze.js
 
-export function generateMaze(rows = 21, cols = 21) {
+export default function generateMaze(rows = 21, cols = 21) {
   const maze = Array.from({ length: rows }, () => Array(cols).fill('wall'));
 
   // Directions: up, right, down, left

@@ -1,0 +1,43 @@
+.mazeWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.mazeGrid {
+  display: grid;
+  border: 3px solid #aaa; /* Light border around maze */
+  background-color: #f0f0f0;
+  padding: 10px;
+}
+
+.cell {
+  width: 20px;
+  height: 20px;
+  transition: background-color 0.1s;
+  border: 1px solid transparent;
+}
+
+.wall {
+  background-color: black;
+}
+
+.path {
+  background-color: white;
+}
+
+.player {
+  background-color: #00e0ff;
+  border: 2px solid #007bff;
+}
+
+.exit {
+  background-color: gold;
+}
+.winMessage {
+  text-align: center;
+  font-size: 1.5rem;
+  color: green;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
