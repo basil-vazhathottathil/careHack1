@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Maze from "./components/Maze";
 import generateMaze from "./utils/generateMaze";
-import confetti from "canvas-confetti";
+import Confetti from "react-confetti";
 import "./App.css";
 
 const ROWS = 21;
@@ -15,11 +15,15 @@ function App() {
   const [hasWon, setHasWon] = useState(false);
   const [gems, setGems] = useState(generateGems(mazeData.maze, mazeData.playerStart, mazeData.exit));
   const [score, setScore] = useState(0);
+  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  const directionStartTime = useRef({});
+  const lastDirection = useRef(null);
+  const movementCooldown = useRef(false);
 
   // Confetti on win
   useEffect(() => {
     if (hasWon) {
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
       setTimeout(() => {
         const newMaze = generateMaze(ROWS, COLS);
         setMazeData(newMaze);
@@ -61,6 +65,7 @@ function App() {
     }
   };
 
+  // Keyboard fallback
   useEffect(() => {
     const handleKeyDown = (e) => {
       switch (e.key) {
@@ -92,11 +97,91 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [playerPos, gems]);
 
+  // Eye tracking movement logic
+  useEffect(() => {
+    if (!window.webgazer) return;
+
+    window.webgazer.setGazeListener((data, elapsedTime) => {
+      if (!data || movementCooldown.current) return;
+
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+
+      const centerX = screenWidth / 2;
+      const centerY = screenHeight / 2;
+
+      const dx = data.x - centerX;
+      const dy = data.y - centerY;
+
+      let dir = null;
+
+      if (Math.abs(dx) > Math.abs(dy)) {
+        dir = dx > 100 ? "right" : dx < -100 ? "left" : null;
+      } else {
+        dir = dy > 100 ? "down" : dy < -100 ? "up" : null;
+      }
+
+      if (!dir) {
+        lastDirection.current = null;
+        return;
+      }
+
+      if (dir !== lastDirection.current) {
+        lastDirection.current = dir;
+        directionStartTime.current[dir] = Date.now();
+      } else {
+        const duration = Date.now() - directionStartTime.current[dir];
+        const steps = Math.floor(duration / 1000);
+
+        if (steps > 0) {
+          for (let i = 0; i < steps; i++) {
+            switch (dir) {
+              case "up":
+                movePlayer(-1, 0);
+                break;
+              case "down":
+                movePlayer(1, 0);
+                break;
+              case "left":
+                movePlayer(0, -1);
+                break;
+              case "right":
+                movePlayer(0, 1);
+                break;
+              default:
+                break;
+            }
+          }
+          movementCooldown.current = true;
+          setTimeout(() => {
+            movementCooldown.current = false;
+            directionStartTime.current[dir] = Date.now();
+          }, 1000); // delay before allowing more movement
+        }
+      }
+    }).begin();
+
+    return () => {
+      if (window.webgazer) window.webgazer.clearGazeListener();
+;
+    };
+  }, [playerPos, gems]);
+
+  // For responsive confetti
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div className="app">
       <h1>Maze Game</h1>
       {hasWon && <div className="win-message">🎉 You Win! 🎉</div>}
       <div className="score">💎 Score: {score}</div>
+      {hasWon && <Confetti width={windowSize.width} height={windowSize.height} />}
       <div className="maze-container">
         <Maze mazeData={mazeData} playerPos={playerPos} gems={gems} />
       </div>
