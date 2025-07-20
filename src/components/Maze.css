@@ -1,0 +1,28 @@
+.maze-container {
+  display: grid;
+  grid-template-columns: repeat(15, 20px);
+  justify-content: center;
+  margin: 20px auto;
+}
+
+.cell {
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+}
+
+.wall {
+  background-color: black;
+}
+
+.path {
+  background-color: white;
+}
+
+.player {
+  background-color: deepskyblue;
+}
+
+.exit {
+  background-color: gold;
+}
