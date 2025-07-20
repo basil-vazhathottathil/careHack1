@@ -1,76 +1,80 @@
 import React, { useEffect, useState } from 'react';
-import generateMaze from './utils/generateMaze';
-import Maze from './components/Maze';
-
-const rows = 15;
-const cols = 15;
-
-function getRandomFreeCell(maze) {
-  let x, y;
-  do {
-    y = Math.floor(Math.random() * maze.length);
-    x = Math.floor(Math.random() * maze[0].length);
-  } while (maze[y][x] !== 0);
-  return { x, y };
-}
+import { generateMaze } from './utils/generateMaze';
+import './components/Maze.css'; // Make sure this file exists and is styled correctly
 
 function App() {
-  const [maze, setMaze] = useState([]);
-  const [playerPosition, setPlayerPosition] = useState({ x: 0, y: 0 });
-  const [exitPosition, setExitPosition] = useState({ x: 0, y: 0 });
+  const [mazeData, setMazeData] = useState(generateMaze(21, 21));
+  const [playerPos, setPlayerPos] = useState(mazeData.playerStart);
   const [hasWon, setHasWon] = useState(false);
-
-  useEffect(() => {
-    const newMaze = generateMaze(rows, cols);
-    const start = getRandomFreeCell(newMaze);
-    let exit;
-    do {
-      exit = getRandomFreeCell(newMaze);
-    } while (exit.x === start.x && exit.y === start.y);
-
-    setMaze(newMaze);
-    setPlayerPosition(start);
-    setExitPosition(exit);
-    setHasWon(false);
-  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (hasWon) return;
 
-      const { x, y } = playerPosition;
-      let newX = x;
-      let newY = y;
+      const [r, c] = playerPos;
+      let newR = r, newC = c;
 
-      if (e.key === 'ArrowUp') newY -= 1;
-      else if (e.key === 'ArrowDown') newY += 1;
-      else if (e.key === 'ArrowLeft') newX -= 1;
-      else if (e.key === 'ArrowRight') newX += 1;
+      if (e.key === 'ArrowUp') newR--;
+      else if (e.key === 'ArrowDown') newR++;
+      else if (e.key === 'ArrowLeft') newC--;
+      else if (e.key === 'ArrowRight') newC++;
 
       if (
-        newX >= 0 &&
-        newX < cols &&
-        newY >= 0 &&
-        newY < rows &&
-        maze[newY][newX] === 0
+        newR >= 0 &&
+        newR < mazeData.maze.length &&
+        newC >= 0 &&
+        newC < mazeData.maze[0].length &&
+        mazeData.maze[newR][newC] !== 'wall'
       ) {
-        setPlayerPosition({ x: newX, y: newY });
+        setPlayerPos([newR, newC]);
 
-        if (newX === exitPosition.x && newY === exitPosition.y) {
+        if (newR === mazeData.exit[0] && newC === mazeData.exit[1]) {
           setHasWon(true);
-          alert('🎉 You reached the goal!');
+          setTimeout(() => alert('🎉 You Win!'), 100);
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [playerPosition, maze, hasWon, exitPosition]);
+  }, [playerPos, mazeData, hasWon]);
 
   return (
-    <div className="App">
-      <h2 style={{ textAlign: 'center' }}>👁️ Eye Maze</h2>
-      <Maze maze={maze} playerPosition={playerPosition} exitPosition={exitPosition} />
+    <div className="game-wrapper">
+      <h1>Eye-Controlled Maze Game (Simulated)</h1>
+      <div className="maze-container">
+        <div
+          className="maze-grid"
+          style={{
+            display: 'grid',
+            gridTemplateRows: `repeat(${mazeData.maze.length}, 20px)`,
+            gridTemplateColumns: `repeat(${mazeData.maze[0].length}, 20px)`,
+            border: '2px solid #ccc'
+          }}
+        >
+          {mazeData.maze.map((row, rowIndex) =>
+            row.map((cell, colIndex) => {
+              const isPlayer =
+                rowIndex === playerPos[0] && colIndex === playerPos[1];
+              const isExit =
+                rowIndex === mazeData.exit[0] && colIndex === mazeData.exit[1];
+
+              let className = 'cell ';
+              if (cell === 'wall') className += 'wall';
+              else className += 'path';
+              if (isPlayer) className += ' player';
+              else if (isExit) className += ' exit';
+
+              return (
+                <div
+                  key={`${rowIndex}-${colIndex}`}
+                  className={className}
+                />
+              );
+            })
+          )}
+        </div>
+      </div>
     </div>
   );
 }
